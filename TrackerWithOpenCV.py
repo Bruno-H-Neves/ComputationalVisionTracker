@@ -15,6 +15,7 @@ cap = cv2.VideoCapture(0)
 cap.set(3,fig_size[0])  # channel 3: windows width
 cap.set(4,fig_size[1])  # channel 4: windows height
 Gaussian_Kernel=(9,9)
+Dil_kelnel=np.ones((9,9))
 def nothing(x):
     pass
 cv2.namedWindow('Parameters')
@@ -27,11 +28,13 @@ if cap.isOpened():
     while True:
         thr1=cv2.getTrackbarPos("Thres_low","Parameters")
         thr2=cv2.getTrackbarPos('Thres_upp',"Parameters")
-        CtrlRead, frame = cap.read()                            #1)
-        frame_Hbf=cv2.GaussianBlur(frame,Gaussian_Kernel,1)     #2)
-        frame_Gray=cv2.cvtColor(frame_Hbf, cv2.COLOR_BGR2GRAY)  #3)
-        frame_Edge=cv2.Canny(frame_Gray,thr1,thr2)              #4)
-        imgHor = np.hstack((frame_Gray,frame_Edge))
+        CtrlRead, frame = cap.read()                                #1)
+        frame_Hbf=cv2.GaussianBlur(frame,Gaussian_Kernel,1)         #2)
+        frame_Gray=cv2.cvtColor(frame_Hbf, cv2.COLOR_BGR2GRAY)      #3)
+        frame_Edge=cv2.Canny(frame_Gray,thr1,thr2)                  #4)
+        frame_MorD=cv2.dilate(frame_Edge,Dil_kelnel,iterations=1)   #5)
+        imgHor = np.hstack((frame_Edge,frame_MorD))
+
         imgHorResize = cv2.resize(imgHor,(int(imgHor.shape[1]/2),int(imgHor.shape[0]/2)))
         frameResize = cv2.resize(frame,(int(frame.shape[1]/2),int(frame.shape[0]/2)))
         cv2.imshow("original",frameResize)
